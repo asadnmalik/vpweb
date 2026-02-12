@@ -311,6 +311,24 @@ function heartConfetti() {
   }
 }
 
+function preloadImages(urls) {
+  urls.forEach(src => {
+    const img = new Image();
+    img.src = src;
+  });
+}
+
+
+// Collect all GIF / image URLs
+const allMedia = [
+  ...yesGifs,
+  ...noResponses.map(r => r.img)
+];
+
+// Preload everything
+preloadImages(allMedia);
+
+
 
 </script>
 
