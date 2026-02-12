@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Will You Be My Valentine?</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Delius+Swash+Caps&family=Fuzzy+Bubbles:wght@400;700&family=Pacifico&display=swap" rel="stylesheet">
+
+<style>
+body {
+  font-family: "Fuzzy Bubbles", sans-serif;
+  background: #ffa7b7;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 20px;
+  font-weight: 400;
+}
+body *{
+  font-family: "Fuzzy Bubbles", sans-serif;
+}
+
+.container {
+  max-width: 420px;
+  width: 100%;
+}
+
+h1 {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  align-items: center;
+}
+
+img.main {
+  max-width: 100%;
+  border-radius: 14px;
+  margin: 20px 0;
+}
+
+.buttons {
+  margin-top: 20px;
+  position: relative;
+}
+
+.yes-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+button {
+  padding: 14px 48px;
+  font-size: 18px;
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  color: white;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+button.yes {
+  background: #46ff39;
+}
+
+button.no {
+  background: #ff5454;
+  margin-left: 12px;
+}
+
+/* Glow YES */
+button.yes.glow {
+  box-shadow: 0 0 20px #fff, 0 0 40px #ff6bd5;
+  animation: pulse 1.4s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+  100% { transform: scale(1); }
+}
+
+/* Arrows */
+.arrow {
+  position: absolute;
+  width: 60px;
+  pointer-events: none;
+  scale: 1.2;
+}
+
+.arrow.top    { 
+  top: -60px;
+  left: 50%;
+  transform: translateX(-50%) rotate(116deg);
+  }
+.arrow.right  {     right: -51px;
+    top: 97%;
+    transform: translateY(-50%) rotate(-111deg); }
+.arrow.bottom { bottom: -57px; left: 48%; transform: translateX(-50%) rotate(-51deg); }
+.arrow.left   { left: -45px; top: 50%; transform: translateY(-50%) rotate(40deg); }
+
+.envelope {
+  font-size: 34px;
+  margin-top: 30px;
+  cursor: pointer;
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+
+.letter {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  max-width: 360px;
+  text-align: left;
+}
+
+.fade {
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.confetti-heart {
+  position: fixed;
+  font-size: 20px;
+  pointer-events: none;
+  animation: floatUp 1.5s ease forwards;
+}
+
+@keyframes floatUp {
+  from { transform: translateY(0) scale(1); opacity: 1; }
+  to { transform: translateY(-120px) scale(1.6); opacity: 0; }
+}
+
+.envelope {
+  animation: popIn 0.6s ease forwards;
+}
+
+@keyframes popIn {
+  0% { transform: scale(0); }
+  70% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+body.pulse-bg {
+  animation: bgPulse 2.5s ease-in-out infinite;
+}
+
+@keyframes bgPulse {
+  0%   { background-color: #ffa7b7; }
+  50%  { background-color: #ff8fa6; }
+  100% { background-color: #ffa7b7; }
+}
+
+
+
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<h1 id="mainText">
+  Will you be my Valentine? 😋🤗🤗🤗
+  <span id="heartHolder" style="display: none !important;"></span>
+</h1>
+
+<img id="mainImage" class="main"
+src="https://media.giphy.com/media/l0MYt5jPR6QX5pnqM/giphy.gif">
+
+<div class="buttons" id="choiceButtons">
+  <div class="yes-wrapper" id="yesWrapper">
+    <button class="yes" id="yesBtn" onclick="handleYes()">Yes 💕</button>
+  </div>
+  <button class="no" id="noBtn" onclick="handleNo()">No 😢</button>
+</div>
+
+<div id="envelope" class="envelope" onclick="openLetter()" style="display:none;">✉️</div>
+
+</div>
+
+<div id="overlay" class="overlay" onclick="closeLetter()">
+  <div class="letter">
+    <p>My love,</p>
+    <p>I love you more than time and distance.</p>
+    <p>I'm completely yours.</p>
+    <p>Unconditionally and irrevocably.</p>
+    <p>And every day that ends in you.</p>
+    <p>I wouldn't have it any other way</p>
+    <p>I love us, and I love being yours ❤️</p>
+  </div>
+</div>
+
+<script>
+let noClickCount = 0;
+let noScale = 1;
+const arrowPositions = ["top","right","bottom","left"];
+
+const yesGifs = [
+  "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNHpqNjdjaXplMTd1aWF5dDV0anIwZzN0czU0MXczZWRhaXZkOTFvZSZlcD12MV9naWZzX3NlYXJjaCZjdD1n/tajFRAj5OrlGXIC3LX/giphy.gif",
+  "https://media.giphy.com/media/l4FGuhL4U2WyjdkaY/giphy.gif",
+  "https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExdjIxZTdwb2I4Njl5MTcyYm1jMmJxMDEzOXA1YzBhcGI1Z3ZnZ3lucyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/lNKjlynKPPuviD9ND0/giphy.gif"
+];
+
+
+const heart1 = `
+<svg width="28" viewBox="0 0 503.323 503.323">
+  <path fill="#C03A2B" d="M231.587,186.579c-37.688,0-63.462,20.393-75.385,50.549c-11.915-30.156-37.688-50.549-75.377-50.549c-80.766,0-107.694,96.273-49.898,160.056c15.455,17.052,75.62,78.353,106.696,109.915c10.127,10.292,27.041,10.292,37.168,0c31.076-31.562,91.24-92.863,106.696-109.915C339.28,282.852,312.352,186.579,231.587,186.579"/>
+</svg>`;
+
+const heart2 = `
+<svg width="28" viewBox="0 0 503.497 503.497">
+  <path fill="#D75D72" d="M373.24,17.443c-60.746,0-102.287,29.175-121.492,78.102c-19.204-48.926-60.746-78.102-121.492-78.102c-130.169,0-173.559,156.203-80.41,259.688c33.063,36.734,193.206,200.079,201.902,208.922c8.695-8.843,168.839-172.188,201.902-208.922C546.799,173.647,503.409,17.443,373.24,17.443"/>
+</svg>`;
+
+document.getElementById("heartHolder").innerHTML = heart1;
+
+const noResponses = [
+  { text:"Are you sure!?? 😢", img:"https://media.giphy.com/media/OPU6wzx8JrHna/giphy.gif" },
+  { text:"?!?!?!??!?!?!??!! 🤬", img:"https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExdGh0bnQ4bHlyc2l3Y2hiYWtjMTJvZGl2NDNrcGVjM3pnNm40eDdzdCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/QAEvvHExIlN3O66Wrz/giphy.gif" },
+  { text:"BUUU UUUU UUUU UUUU UUUU UUUU UU UUT 💔", img:"https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExZ3ZncTZtenJtcnRjMmZvYmdsdzdpbXoyYm9idG9wOWltNjJ0bnljayZlcD12MV9naWZzX3NlYXJjaCZjdD1n/GyNeHf5IrpQNG/giphy.gif" },
+  { text:"Not into men? 🤔", img:"https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExb2d2OW9mNW9uMWtsZDV6Z2pxeDBmcDk5czFzZmcxcW16ZnczbXYycyZlcD12MV9naWZzX3NlYXJjaCZjdD1n/21VTFJTEr1x9ortvO3/giphy.gif" },
+  { text:"OK HOW ABOUT NOW HUH? 😏", img:"biceps.jpg" },
+  { text:"I dare you to click No again 😠", img:"https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExYWg1aG15MjVjaTUzY21yam8yNHR4d3VkbzE1YnM4dGphdml6czdkMyZlcD12MV9naWZzX3NlYXJjaCZjdD1n/GjR6RPcURgiL6/giphy.gif" },
+  { text:"NEVER GONNA GIVE YOU UP 😞", img:"https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3czRpcTlyOWU0eW0waWN1a3g1Z3ljZmoyMm5kbHdxYzRodXZscW8ycCZlcD12MV9naWZzX3JlbGF0ZWQmY3Q9Zw/lgcUUCXgC8mEo/giphy.gif" },
+  { text:"NEVER GONNA LET YOU DOWN 🥹", img:"https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3YWhwMjA5bTliYjRlb2g1bGh5Ym96czI1aWYyMjB6am1jMG80MXl4NiZlcD12MV9naWZzX3JlbGF0ZWQmY3Q9Zw/7Ob5uwAwmTWLe/giphy.gif" },
+  { text:"NEVER GONNA RUN AROUND AND DESERT YOU 🥹", img:"https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3YWhwMjA5bTliYjRlb2g1bGh5Ym96czI1aWYyMjB6am1jMG80MXl4NiZlcD12MV9naWZzX3JlbGF0ZWQmY3Q9Zw/lXfRV6jysinJe/giphy.gif" }
+];
+
+function handleNo() {
+  noClickCount++;
+
+  const r = noResponses[Math.min(noClickCount-1, noResponses.length-1)];
+  document.getElementById("mainText").childNodes[0].nodeValue = r.text + " ";
+  document.getElementById("mainImage").src = r.img;
+
+  document.getElementById("heartHolder").innerHTML = heart2;
+
+  noScale -= 0.04;
+  document.getElementById("noBtn").style.transform = `scale(${noScale})`;
+
+  if (noClickCount >= 5) {
+    document.getElementById("yesBtn").classList.add("glow");
+  }
+
+  const arrow = document.createElement("img");
+  arrow.src = "arrow.png";
+  arrow.className = "arrow " + arrowPositions[(noClickCount-1)%4];
+  document.getElementById("yesWrapper").appendChild(arrow);
+}
+
+function handleYes() {
+  document.getElementById("mainText").innerText = "HEHEHEHEH HUEHEHUEHU UEH UHEUEHE HEUHEUHEH UEHUHEUH EUHEUEHEEH HEHE 😍";
+
+  const gif =
+    noClickCount < 2 ? yesGifs[0] :
+    noClickCount < 5 ? yesGifs[1] :
+    yesGifs[2];
+
+  swapImage(gif);
+  heartConfetti();
+
+  document.getElementById("choiceButtons").style.display = "none";
+  document.getElementById("envelope").style.display = "block";
+
+  document.body.classList.add("pulse-bg");
+
+}
+
+
+
+function openLetter() {
+  document.getElementById("overlay").style.display = "flex";
+}
+
+function closeLetter() {
+  document.getElementById("overlay").style.display = "none";
+}
+
+function swapImage(src) {
+  const img = document.getElementById("mainImage");
+  img.classList.add("fade");
+  setTimeout(() => {
+    img.src = src;
+    img.classList.remove("fade");
+  }, 400);
+}
+
+
+
+function heartConfetti() {
+  for (let i = 0; i < 20; i++) {
+    const heart = document.createElement("div");
+    heart.className = "confetti-heart";
+    heart.innerText = "❤️";
+    heart.style.left = Math.random() * window.innerWidth + "px";
+    heart.style.top = "60%";
+    document.body.appendChild(heart);
+    setTimeout(() => heart.remove(), 1500);
+  }
+}
+
+
+</script>
+
+</body>
+</html>
